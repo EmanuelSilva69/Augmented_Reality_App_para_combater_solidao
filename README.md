@@ -122,7 +122,7 @@ private String[] modelosDancaIdle = {
 | Problema | Causa Provável | Solução |
 | :--- | :--- | :--- |
 | **Crash ao abrir a câmera** | Permissões negadas. | Vá nas configurações do Android > Apps > AvatarAR e permita o uso da Câmera. |
-| **Erro 404 na IA** | API Key ou Modelo incorreto. | Verifique se não há espaços em branco na chave colada. Confirme se o modelo no `GeminiManager` é `gemini-1.5-flash`. |
+| **Erro 404 na IA** | API Key ou Modelo incorreto. | Verifique se não há espaços em branco na chave colada. Confirme se o modelo no `GeminiManager` é `gemini-2.5-flash`. |
 | **Avatar deslizando no chão** | Animação com Root Motion. | Use animações "In Place" ou ancore o avatar tocando na tela assim que ele aparecer. |
 | **Flickering (Piscada)** | Troca de modelo pesado. | Normal na troca de arquivos GLB. Reduzir o tamanho dos arquivos (texture compression) ajuda. |
 
