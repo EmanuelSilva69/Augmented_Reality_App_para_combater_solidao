@@ -92,8 +92,9 @@ private String[] modelosDancaIdle = {
     "animations/dancing.glb",
     "animations/minhanovadanca.glb", // <--- SEU NOVO ARQUIVO AQUI
     // ... outros arquivos
-};
-## 💿 Instalação e Configuração
+};'''
+
+### 💿 Instalação e Configuração
 
 ### Requisitos
 * Android Studio Jellyfish ou superior.
