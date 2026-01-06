@@ -154,4 +154,79 @@ O aplicativo não coleta dados pessoais, localização ou identificadores de pub
 Para dúvidas sobre esta política ou sobre o funcionamento do app, entre em contato com o desenvolvedor responsável.
 
 ---
+## 📲 Guia Passo a Passo de Instalação
+
+### Opção A: Para Desenvolvedores (Compilar o Código)
+
+Este método é recomendado se desejas modificar as animações, ajustar a IA ou contribuir para o código.
+
+#### 1. Preparação do Ambiente
+Antes de começar, certifica-te de ter o seguinte:
+* **Android Studio** (Versão Jellyfish ou superior recomendada).
+* **Git** instalado.
+* Um dispositivo Android físico (O emulador do Android Studio tem suporte limitado a AR e é muito lento para renderizar 3D em tempo real).
+* **Cabo USB** para ligar o telemóvel ao PC.
+
+#### 2. Clonar o Repositório
+Abre o terminal (ou Git Bash) e executa o comando:
+```bash
+git clone [https://github.com/SEU_USUARIO/AvatarAR.git](https://github.com/SEU_USUARIO/AvatarAR.git)
+```
+Ou transfere o ficheiro `.zip` e extrai numa pasta da tua preferência.
+
+#### 3. Abrir no Android Studio
+1.  Abre o Android Studio.
+2.  Seleciona **File > Open**.
+3.  Navega até à pasta onde clonaste o projeto e seleciona-a.
+4.  **Aguarda o Gradle Sync:** O Android Studio irá transferir automaticamente as bibliotecas necessárias (`SceneView`, `OkHttp`, `ARCore`). Isto pode demorar alguns minutos.
+
+#### 4. Verificação dos Assets (Importante!)
+Certifica-te de que os modelos 3D estão no local correto para evitar ecrãs pretos.
+* Navega na aba "Project" à esquerda: `app > src > main > assets > animations`.
+* Confirma se ficheiros como `dancing.glb` e `talking.glb` estão lá.
+
+#### 5. Configurar o Telemóvel
+Para instalar apps via cabo USB, precisas ativar o **Modo de Programador**:
+1.  Vai a **Definições > Sobre o telefone**.
+2.  Toca 7 vezes em **Número de Compilação** (Build Number).
+3.  Volta, vai a **Sistema > Opções de Programador**.
+4.  Ativa a **Depuração USB**.
+
+#### 6. Compilar e Executar
+1.  Liga o telemóvel via USB.
+2.  No Android Studio, seleciona o teu dispositivo na barra superior.
+3.  Clica no botão verde **Run (▶)**.
+
+---
+
+### Opção B: Instalação via APK (Teste Rápido)
+
+Se já possuis o ficheiro `app-debug.apk` gerado:
+
+1.  Envia o ficheiro `.apk` para o teu telemóvel (via Google Drive, WhatsApp ou USB).
+2.  Toca no ficheiro para abrir.
+3.  Se o Android bloquear, seleciona **Definições > Permitir desta fonte**.
+4.  Clica em **Instalar**.
+
+---
+
+## ⚙️ Configuração Inicial (Primeira Utilização)
+
+Assim que a aplicação abrir pela primeira vez, segue estes passos para ativar a inteligência do Avatar:
+
+### 1. Permissões
+O Android solicitará permissão para usar a **Câmara**.
+* Clica em **"Durante a utilização da app"**. Sem isto, a Realidade Aumentada não funciona.
+
+### 2. Ativar o Gemini (Cérebro da IA)
+Para que o Avatar converse contigo, ele precisa de uma chave de acesso.
+
+1.  No teu computador ou telemóvel, acede ao [Google AI Studio](https://aistudio.google.com/).
+2.  Clica em **"Get API Key"** e depois em **"Create API Key"**. Copia o código gerado.
+3.  Na app **Avatar AR**, toca no botão de **Engrenagem** (canto do ecrã).
+4.  Escolhe a opção **Configurar Gemini**.
+5.  Cola a chave que copiaste e toca em **Salvar**.
+
+Pronto! Agora podes digitar no chat e ver o avatar dançar e responder às tuas perguntas em tempo real.
+---
 *Desenvolvido com ❤️, Java e Loucura. Só a animação foi 2 dias fazendo no blender*
