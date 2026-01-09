@@ -1,5 +1,7 @@
 package com.google.ar.core.examples.java.AvatarAR;
-
+// Usando o https://github.com/SceneView/sceneview-android !! (melhor q o arcore puro em minha opinião)
+// Animações do https://www.mixamo.com/#/
+// O resto fiz no Blender (rigging das animações com o avatar e tal. Mas é meio difícil ent só fiz com 1)
 import android.util.Log;
 import okhttp3.*;
 import org.json.JSONArray;

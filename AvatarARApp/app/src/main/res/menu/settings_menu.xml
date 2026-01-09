@@ -15,8 +15,7 @@
   limitations under the License.
 -->
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-  <item android:id="@+id/depth_settings" android:title="Configurações de Profundidade" />
-  <item android:id="@+id/instant_placement_settings" android:title="Colocação Instantânea" />
+
   <item android:id="@+id/avatar_choice_1" android:title="Trocar Avatar" />
   <item
       android:id="@+id/config_gemini"
