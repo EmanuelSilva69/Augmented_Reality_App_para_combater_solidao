@@ -55,69 +55,107 @@ public class AvatarArActivity extends AppCompatActivity {
   private final InstantPlacementSettings instantPlacementSettings = new InstantPlacementSettings();
   private GeminiManager geminiManager;
   private boolean usarGemini = false;
+  private android.media.MediaPlayer mediaPlayer;
+  // Lista com os IDs das músicas
+  private int[] playlist = {
+          R.raw.musica1, // Índice 0
+          R.raw.musica2  // Índice 1
+  };
 
+  // Controle: -1 = Desligado, 0 = Música 1, 1 = Música 2
+  private int indiceMusicaAtual = -1;
   // --- Listas de Arquivos ---
   // AVATAR 1 (A Mulher Atual)
   private String[] dancasAvatar1 = {
-          "animations/avatar1/dancing.glb",
+         // "animations/avatar1/dancing.glb",
           "animations/avatar1/dancinghiphop.glb",
-          "animations/avatar1/dancingjazz.glb"
+          "animations/avatar1/dancinghiphop2.glb",
+          "animations/avatar1/dancingjazz.glb",
+          "animations/avatar1/dancingsalsa.glb",
+          "animations/avatar1/dancingsamba.glb",
   };
   private String talkingAvatar1 = "animations/avatar1/talking.glb";
 
   // AVATAR 2 (Ex: Um Robô ou Homem - coloque seus arquivos aqui)
   private String[] dancasAvatar2 = {
-          "animations/avatar2/",
-          "animations/avatar2/",
-          "animations/avatar2/"
-  };
-  private String talkingAvatar2 = "animations/avatar2/talking.glb";
+          "animations/avatar2/macarena.glb",
+          "animations/avatar2/salsa.glb"
 
+  };
+  private String talkingAvatar2 = "animations/avatar2/TALKING.glb";
+  private String[] dancasAvatar3 = {
+          "animations/avatar3/rapping.glb",
+          "animations/avatar3/salsa.glb",
+
+  };
+  private String talkingAvatar3 = "animations/avatar3/talking.glb";
   // --- ESTADO ATUAL ---
   // Essa lista aponta para qual avatar estamos usando agora
   private String[] dancasAtuais = dancasAvatar1;
   private String talkingAtual = talkingAvatar1;
 
   // Controle de qual ID está ativo (1 ou 2)
+  // ==============================================================================
+  // 2. VARIÁVEIS ADAPTADAS (O "PONTEIRO" ATUAL)
+  // ==============================================================================
+
+  // AQUI ESTÁ O TRUQUE: Mantemos os nomes antigos!
+  // Elas começam apontando para o Avatar 1, mas vão mudar quando clicarmos no botão.
+
+  private String[] modelosDancaIdle = dancasAvatar1;
+
+  // Transformamos a String única em Array para manter compatibilidade com seu código antigo
+  private String[] modelosTalking = { talkingAvatar1 };
+
+  // Controle interno
   private int idAvatarAtual = 1;
-
   private int ultimaDancaIndex = -1;
-
 
   private String modeloMorte = "animations/avatar1/morte.glb";
 
   // --- MÉTODO DE TROCA DE ESTADO (CACHE) ---
   private void atualizarEstadoAvatar(String path) {
+    // 1. Pega o novo modelo do cache
     ArModelNode novoNode = avatarCache.get(path);
-    if (novoNode == null) return;
 
-    if (novoNode == avatarNodeAtual) return;
-
-    // Esconde anterior
-    if (avatarNodeAtual != null) {
-      avatarNodeAtual.setVisible(false);
+    if (novoNode == null) {
+      Log.e("AvatarAR", "Modelo não encontrado no cache: " + path);
+      return;
     }
 
+    // Se já é o mesmo que está tocando, não faz nada (economiza processamento)
+    if (novoNode == avatarNodeAtual) return;
+
+    // 2. ESCONDE TODOS OS OUTROS (Técnica do Holofote)
+    // Isso garante que não sobre nenhum "fantasma" visível
+    for (ArModelNode node : avatarCache.values()) {
+      node.setVisible(false);
+      // Opcional: Pausar animação dos invisíveis para poupar bateria
+      // node.pauseAnimation();
+    }
+
+    // 3. PREPARA O NOVO
     avatarNodeAtual = novoNode;
 
-    // 🔥 PASSO CRÍTICO:
-    // Remove de QUALQUER lugar
-    avatarNodeAtual.setParent(null);
-
-    // 🔥 GARANTE que está na mesma gaiola do palco
-    if (cameraRoot != null) {
+    // Garante que ele está preso na gaiola (caso tenha se soltado por algum bug)
+    if (cameraRoot != null && avatarNodeAtual.getParent() != cameraRoot) {
       avatarNodeAtual.detachAnchor();
-      avatarNodeAtual.setPlacementMode(
-              io.github.sceneview.ar.node.PlacementMode.DISABLED
-      );
+      avatarNodeAtual.setParent(null);
       cameraRoot.addChild(avatarNodeAtual);
     }
 
-    // Reset local
-    avatarNodeAtual.setPosition(new Float3(0f, 0f, 0f));
-    avatarNodeAtual.setRotation(new Float3(0f, 0f, 0f));
+    // Reseta posição (garantia)
+    avatarNodeAtual.setPosition(new dev.romainguy.kotlin.math.Float3(0.0f, 0.0f, 0.0f));
+    avatarNodeAtual.setRotation(new dev.romainguy.kotlin.math.Float3(0.0f, 0.0f, 0.0f));
 
+    // 4. MOSTRA O NOVO
     avatarNodeAtual.setVisible(true);
+
+    // Se a animação tiver parado, dá o play de novo
+    // (Opcional, o SceneView geralmente faz auto-play)
+    // avatarNodeAtual.playAnimation(0, true);
+
+    Log.d("AvatarAR", "Troca visual realizada para: " + path);
   }
 
   private void lidarComErroIA(String error) {
@@ -178,8 +216,13 @@ public class AvatarArActivity extends AppCompatActivity {
             "animations/avatar1/dancingsalsa.glb",
             "animations/avatar1/dancingsamba.glb",
             "animations/avatar1/talking.glb",
-            //"animations/avatar1/talkingwalking.glb",
-            //"animations/avatar1/morte.glb"
+            "animations/avatar2/macarena.glb",
+            "animations/avatar2/salsa.glb",
+            "animations/avatar2/TALKING.glb",
+            "animations/avatar3/rapping.glb",
+            "animations/avatar3/salsa.glb",
+            "animations/avatar3/talking.glb",
+
     };
 
     Toast.makeText(this, "Carregando avatares...", Toast.LENGTH_SHORT).show();
@@ -199,7 +242,7 @@ public class AvatarArActivity extends AppCompatActivity {
       node.loadModelGlbAsync(
               path,
               true, // autoAnimate
-              0.7f, // scale
+              0.9f, // scale
               null, // center position
               null,
               instance -> {
@@ -433,12 +476,21 @@ public class AvatarArActivity extends AppCompatActivity {
   private void processarRespostaIA(String text) {
     runOnUiThread(() -> {
       Toast.makeText(AvatarArActivity.this, "IA: " + text, Toast.LENGTH_LONG).show();
-      int index = new Random().nextInt(modelosTalking.length);
 
-      atualizarEstadoAvatar(modelosTalking[index]); // Usa cache
+      // --- CORREÇÃO AQUI ---
+      // 1. Removemos o Random (pois talkingAtual é um arquivo único, não uma lista)
+      // 2. Usamos 'talkingAtual', que contém o caminho correto do avatar selecionado no momento
 
+      if (talkingAtual != null) {
+        atualizarEstadoAvatar(talkingAtual);
+      } else {
+        Log.e("AvatarAR", "talkingAtual está nulo!");
+      }
+
+      // Faz o celular falar
       if (ttsManager != null) ttsManager.falar(text);
 
+      // Calcula o tempo para voltar a dançar
       int delayVoltaDanca = Math.max(13000, text.length() * 100);
       idleHandler.postDelayed(idleRunnable, delayVoltaDanca);
     });
@@ -451,15 +503,28 @@ public class AvatarArActivity extends AppCompatActivity {
       CameraPermissionHelper.requestCameraPermission(this);
     }
   }
-
+  protected void onPause() {
+    super.onPause();
+    // Pausa a música se sair do app
+    if (mediaPlayer != null && mediaPlayer.isPlaying()) {
+      mediaPlayer.pause();
+    }
+  }
   @Override
   protected void onDestroy() {
     if (session != null) { session.close(); }
     if (ttsManager != null) { ttsManager.parar(); }
+    // LIBERA A MÚSICA DA MEMÓRIA
+    if (mediaPlayer != null) {
+      mediaPlayer.stop();
+      mediaPlayer.release();
+      mediaPlayer = null;
+    }
     super.onDestroy();
   }
 
   protected boolean settingsMenuClick(MenuItem item) {
+    int id = item.getItemId();
     if (item.getItemId() == R.id.config_gemini) {
       android.widget.EditText input = new android.widget.EditText(this);
       new android.app.AlertDialog.Builder(this)
@@ -476,8 +541,25 @@ public class AvatarArActivity extends AppCompatActivity {
       return true;
     }
     if (item.getItemId() == R.id.avatar_choice_1) {
+      trocarPersonagem(1);
       idleHandler.removeCallbacks(idleRunnable);
       idleRunnable.run();
+      return true;
+    }
+    if (item.getItemId() == R.id.avatar_choice_2) {
+      trocarPersonagem(2);
+      idleHandler.removeCallbacks(idleRunnable);
+      idleRunnable.run();
+      return true;
+    }
+    if (item.getItemId() == R.id.avatar_choice_3) {
+      trocarPersonagem(3);
+      idleHandler.removeCallbacks(idleRunnable);
+      idleRunnable.run();
+      return true;
+    }
+    if (id == R.id.action_music) {
+      alternarMusica();
       return true;
     }
     return false;
@@ -632,5 +714,82 @@ public class AvatarArActivity extends AppCompatActivity {
       // Cria a luz na posição sorteada
       criarLuzNeon(new dev.romainguy.kotlin.math.Float3(randomX, 0.0f, randomZ), corEscolhida);
     }
+  }
+  private void trocarPersonagem(int id) {
+    if (idAvatarAtual == id) return;
+
+    idAvatarAtual = id;
+
+    if (id == 1) {
+      // Atualiza as variáveis NOVAS (para o Loop e a IA funcionarem)
+      dancasAtuais = dancasAvatar1;
+      talkingAtual = talkingAvatar1;
+
+      // Atualiza as VELHAS (para garantir compatibilidade se sobrou código antigo)
+      modelosDancaIdle = dancasAvatar1;
+      modelosTalking = new String[]{ talkingAvatar1 };
+
+      Toast.makeText(this, "Avatar 1: Mulher", Toast.LENGTH_SHORT).show();
+    }
+    else if (id == 2) {
+      dancasAtuais = dancasAvatar2;
+      talkingAtual = talkingAvatar2; // <--- ISSO FALTAVA!
+
+      modelosDancaIdle = dancasAvatar2;
+      modelosTalking = new String[]{ talkingAvatar2 };
+
+      Toast.makeText(this, "Avatar 2: Robô", Toast.LENGTH_SHORT).show();
+    }
+    else if (id == 3) {
+      dancasAtuais = dancasAvatar3;
+      talkingAtual = talkingAvatar3; // <--- ISSO FALTAVA!
+
+      modelosDancaIdle = dancasAvatar3;
+      modelosTalking = new String[]{ talkingAvatar3 };
+
+      Toast.makeText(this, "Avatar 3: Rapaz", Toast.LENGTH_SHORT).show();
+    }
+
+    // Reinicia a dança imediatamente
+    idleHandler.removeCallbacks(idleRunnable);
+
+    // Usa dancasAtuais para garantir
+    if (dancasAtuais.length > 0) {
+      atualizarEstadoAvatar(dancasAtuais[0]);
+    }
+
+    idleHandler.postDelayed(idleRunnable, 10000);
+  }
+  // --- CONTROLE DE MÚSICA ---
+  // --- CONTROLE DE MÚSICA (CICLO) ---
+  private void alternarMusica() {
+    // 1. Limpeza: Se já tiver algo tocando, para e libera memória
+    if (mediaPlayer != null) {
+      if (mediaPlayer.isPlaying()) {
+        mediaPlayer.stop();
+      }
+      mediaPlayer.release();
+      mediaPlayer = null;
+    }
+
+    // 2. Avança para a próxima música
+    indiceMusicaAtual++;
+
+    // 3. Verifica se acabou a lista (Ciclo: 0 -> 1 -> Desligado)
+    if (indiceMusicaAtual >= playlist.length) {
+      indiceMusicaAtual = -1; // Volta para o estado "Desligado"
+      Toast.makeText(this, "Música Desligada", Toast.LENGTH_SHORT).show();
+      return; // Sai do método, não toca nada
+    }
+
+    // 4. Toca a nova música selecionada
+    int musicaEscolhida = playlist[indiceMusicaAtual];
+
+    mediaPlayer = android.media.MediaPlayer.create(this, musicaEscolhida);
+    mediaPlayer.setLooping(true);
+    mediaPlayer.setVolume(0.5f, 0.5f);
+    mediaPlayer.start();
+
+    Toast.makeText(this, "Tocando: Faixa " + (indiceMusicaAtual + 1), Toast.LENGTH_SHORT).show();
   }
 }

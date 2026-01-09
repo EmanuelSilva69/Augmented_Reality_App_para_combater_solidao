@@ -14,10 +14,33 @@
    See the License for the specific language governing permissions and
   limitations under the License.
 -->
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
 
-  <item android:id="@+id/avatar_choice_1" android:title="Trocar Avatar" />
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
   <item
       android:id="@+id/config_gemini"
-      android:title="Configurar Gemini AI" />
+      android:title="Configurar API Gemini"
+      app:showAsAction="never" />
+  <item
+      android:id="@+id/action_music"
+      android:title="Ligar/Desligar Música"
+      android:icon="@android:drawable/ic_media_play" />
+
+  <item android:title="Escolher Personagem">
+    <menu>
+      <item
+          android:id="@+id/avatar_choice_1"
+          android:title="Avatar 1 (Mulher)" />
+
+      <item
+          android:id="@+id/avatar_choice_2"
+          android:title="Avatar 2 (Mulher 2)" />
+
+      <item
+          android:id="@+id/avatar_choice_3"
+          android:title="Avatar 3 (Homem)" />
+    </menu>
+  </item>
+
 </menu>
