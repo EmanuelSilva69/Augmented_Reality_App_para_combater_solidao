@@ -253,6 +253,8 @@ Pronto! Agora podes digitar no chat e ver o avatar dançar e responder às tuas 
 ## Emulador usado:
 
 <img width="886" height="512" alt="image" src="https://github.com/user-attachments/assets/b60f6bc8-4f56-4fdb-9dee-2dfdae8b258e" />
+<img width="742" height="629" alt="image" src="https://github.com/user-attachments/assets/bda744ae-a324-48b2-b98b-36840aaf73de" />
+
 
 ---
 *Desenvolvido com ❤️, Java e Loucura. Só a animação foi 2 dias fazendo no blender*
