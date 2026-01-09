@@ -249,5 +249,9 @@ Para que o Avatar converse contigo, ele precisa de uma chave de acesso.
 5.  Cola a chave que copiaste e toca em **Salvar**.
 
 Pronto! Agora podes digitar no chat e ver o avatar dançar e responder às tuas perguntas em tempo real.
+
+##Emulador usado:
+<img width="886" height="512" alt="image" src="https://github.com/user-attachments/assets/b60f6bc8-4f56-4fdb-9dee-2dfdae8b258e" />
+
 ---
 *Desenvolvido com ❤️, Java e Loucura. Só a animação foi 2 dias fazendo no blender*
