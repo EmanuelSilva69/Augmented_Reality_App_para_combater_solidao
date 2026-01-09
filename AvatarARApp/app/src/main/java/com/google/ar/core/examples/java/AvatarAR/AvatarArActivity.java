@@ -57,20 +57,32 @@ public class AvatarArActivity extends AppCompatActivity {
   private boolean usarGemini = false;
 
   // --- Listas de Arquivos ---
-  private String[] modelosDancaIdle = {
+  // AVATAR 1 (A Mulher Atual)
+  private String[] dancasAvatar1 = {
           "animations/avatar1/dancing.glb",
           "animations/avatar1/dancinghiphop.glb",
-          "animations/avatar1/dancinghiphop2.glb",
-          "animations/avatar1/dancingjazz.glb",
-          "animations/avatar1/dancingsalsa.glb",
-          "animations/avatar1/dancingsamba.glb"
+          "animations/avatar1/dancingjazz.glb"
   };
+  private String talkingAvatar1 = "animations/avatar1/talking.glb";
+
+  // AVATAR 2 (Ex: Um Robô ou Homem - coloque seus arquivos aqui)
+  private String[] dancasAvatar2 = {
+          "animations/avatar2/",
+          "animations/avatar2/",
+          "animations/avatar2/"
+  };
+  private String talkingAvatar2 = "animations/avatar2/talking.glb";
+
+  // --- ESTADO ATUAL ---
+  // Essa lista aponta para qual avatar estamos usando agora
+  private String[] dancasAtuais = dancasAvatar1;
+  private String talkingAtual = talkingAvatar1;
+
+  // Controle de qual ID está ativo (1 ou 2)
+  private int idAvatarAtual = 1;
+
   private int ultimaDancaIndex = -1;
 
-  private String[] modelosTalking = {
-          "animations/avatar1/talking.glb",
-          "animations/avatar1/talkingwalking.glb"
-  };
 
   private String modeloMorte = "animations/avatar1/morte.glb";
 
