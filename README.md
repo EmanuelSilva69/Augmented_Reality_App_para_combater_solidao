@@ -250,7 +250,8 @@ Para que o Avatar converse contigo, ele precisa de uma chave de acesso.
 
 Pronto! Agora podes digitar no chat e ver o avatar dançar e responder às tuas perguntas em tempo real.
 
-##Emulador usado:
+## Emulador usado:
+
 <img width="886" height="512" alt="image" src="https://github.com/user-attachments/assets/b60f6bc8-4f56-4fdb-9dee-2dfdae8b258e" />
 
 ---
