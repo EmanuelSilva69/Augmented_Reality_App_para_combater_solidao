@@ -17,83 +17,115 @@
 
 ## 🚀 Visão Geral e Funcionalidades
 
-O aplicativo transforma o ambiente do usuário em um palco virtual. Ao abrir a câmera, o sistema detecta superfícies planas (chão/mesa) e posiciona um avatar humanóide.
+O aplicativo evoluiu para um **Estúdio de Realidade Aumentada Portátil**. Diferente de apps AR comuns que dependem de chão perfeito, o Avatar AR utiliza um sistema de "Gaiola Virtual" (`Camera Root`), mantendo os personagens fixos e visíveis à frente do usuário, ideal para uso em movimento ou ambientes complexos.
 
 ### Funcionalidades Principais:
-* **Dual AI Engine (Híbrido):**
-    * **Google Gemini (Nuvem):** Integração nativa com a API Gemini 1.5 Flash para respostas rápidas e criativas.
-    * **Ollama (Local):** Suporte para conexão com servidor local (PC) para privacidade total e uso offline (requer rede local).
-* **Máquina de Estados de Animação:** O avatar possui "vida própria", alternando entre estados de *Idle* (Dança), *Thinking* (Processando) e *Talking* (Respondendo).
-* **Sorteio Inteligente de Danças:** O sistema garante que as danças de espera (`Idle`) variem aleatoriamente sem repetições consecutivas.
-* **Voz Neural (TTS):** As respostas da IA são lidas em voz alta utilizando o motor *Text-to-Speech* do Android em Português Brasileiro.
-* **Interação Tátil:** O usuário pode "ancorar" (fixar) o avatar em um ponto específico tocando na tela.
-
----
-
-## 🛠️ Arquitetura Técnica
-
-O projeto segue o padrão MVVM simplificado para Android Java, focado em Managers para isolar responsabilidades.
-
-### Estrutura de Classes:
-
-| Classe | Responsabilidade |
-| :--- | :--- |
-| **`AvatarArActivity`** | **O Cérebro.** Gerencia o ciclo de vida da Activity, inicializa o ARSceneView, controla a UI e orquestra a máquina de estados (quando dançar, quando falar). |
-| **`GeminiManager`** | Cliente HTTP (OkHttp) que conecta à Google AI Studio. Gerencia a API Key do usuário e trata os JSONs de resposta. |
-| **`OllamaManager`** | Cliente HTTP para conexão com localhost. Permite usar Llama 3, Mistral, etc., rodando no PC do usuário. |
-| **`TTSManager`** | Wrapper para a classe `TextToSpeech` do Android. Configura locale (pt-BR), velocidade e tom da voz. |
-| **`AvatarModel`** | (Via SceneView) Abstração do nó 3D. Controla carregamento de GLB, escala e posicionamento no mundo AR. |
+* **Dual AI Engine (Híbrido):** Suporte a **Google Gemini** (Nuvem) e **Ollama** (Local).
+* **Multi-Avatar System:** Troca instantânea entre 3 personagens distintos (Ex: Mulher, Robô, Rapaz), cada um com seu próprio set de animações e personalidade.
+* **Modo Estúdio (Studio Mode):** O avatar e o palco são fixados a 4 metros da câmera, garantindo que nunca "sumam" ou atravessem paredes, criando uma experiência de palco portátil.
+* **DJ Virtual:** Sistema de música integrado com playlist cíclica (Faixa 1 -> Faixa 2 -> Off).
+* **Carregamento Inteligente (Anti-ANR):** Sistema de *Staggered Loading* que carrega os modelos 3D em fila (com atraso milimétrico) para não travar o celular na inicialização.
+* **Máquina de Estados:** Alterna fluidamente entre *Idle* (Danças aleatórias sem repetição) e *Talking* (Fala sincronizada).
 
 ---
 
 ## 🎭 Gestão de Modelos e Animações 3D
 
-O aplicativo utiliza o formato **.GLB** (glTF Binary) por ser leve e otimizado para mobile. Os arquivos estão localizados em `src/main/assets/animations/`.
+O projeto agora organiza os assets em subpastas para facilitar a gestão de múltiplos personagens. Os arquivos estão em `src/main/assets/animations/`.
 
-### Lista de Animações Atuais:
+### Estrutura de Pastas e Arquivos:
 
-**1. Estado Idle (Danças de Espera):**
-O avatar escolhe aleatoriamente uma destas animações enquanto aguarda input do usuário:
-* `dancing.glb` (Dança Padrão)
-* `dancinghiphop.glb` (Hip Hop 1)
-* `dancinghiphop2.glb` (Hip Hop 2)
-* `dancingjazz.glb` (Jazz/Contemporâneo)
-* `dancingsalsa.glb` (Salsa)
-* `dancingsamba.glb` (Samba)
+**📂 avatar1/ (Personagem Principal)**
+* `dancinghiphop.glb`, `dancingjazz.glb`, `dancingsamba.glb` (e variações)
+* `talking.glb` (Fala padrão)
+* `morte.glb` (Fallback de erro)
 
-**2. Estado de Interação:**
-* `talking.glb`: Executado enquanto o TTS está falando a resposta da IA.
-* `talkingwalking.glb`: Variação onde o avatar caminha enquanto fala (Cuidado: requer espaço físico).
+**📂 avatar2/ (Personagem Secundário)**
+* `macarena.glb`, `salsa.glb`
+* `TALKING.glb`
 
-**3. Estado de Erro:**
-* `morte.glb`: Executado se a API da IA falhar ou a internet cair. Serve como feedback visual imediato.
+**📂 avatar3/ (Personagem Terciário)**
+* `rapping.glb`, `salsa.glb`
+* `talking.glb`
+
+**📂 pistadanca/ (Cenário)**
+* `animated_dance_floor_neon_lights.glb`
+* `sound_box.glb`, `disco_ball.glb`, `cube.glb` (Luzes)
+
+> **Nota Técnica:** O sistema utiliza a técnica de "Holofote" para gestão de memória. Todos os modelos são carregados no início e mantidos na cena (`cameraRoot`), alternando apenas a visibilidade (`setVisible`). Isso evita lags, recarregamentos e o desaparecimento de modelos durante a troca.
+## 🛠️ Arquitetura Técnica
+
+O projeto segue o padrão MVVM simplificado para Android Java, focado em Managers para isolar responsabilidades.
 
 ---
 
+## 🔧 Solução de Problemas
+
+| Problema | Causa Provável | Solução |
+| :--- | :--- | :--- |
+| **App trava na abertura (ANR)** | Carregar muitos GLBs pesados simultaneamente. | O código já implementa um *delay* de 200ms-500ms entre cada carregamento (*Staggered Loading*). Se adicionar mais avatares, mantenha essa lógica. |
+| **Música não toca** | Arquivo ausente ou nome errado. | Verifique se os arquivos `.mp3` estão na pasta `res/raw` e se o nome é todo minúsculo (ex: `musica1.mp3`). |
+| **Avatar sumiu após troca** | Erro no path do cache. | O sistema atual monta a lista de carregamento copiando as variáveis de definição. Certifique-se de que o arquivo existe na pasta `assets` com o nome exato. |
+| **Erro 404 na IA** | API Key inválida. | Verifique espaços em branco na chave do Gemini no menu de configurações. |
+
+---
+
+#### 4. Verificação dos Assets (Importante!)
+* **Modelos 3D:** Confirma em `src > main > assets > animations`.
+* **Música:** Confirma se tens a pasta `src > main > res > raw` com os ficheiros `musica1.mp3` e `musica2.mp3`. Se não tiveres, cria a pasta e adiciona qualquer ficheiro de áudio para evitar erros de compilação (`R.raw.musica...`).
+
+## 🎭 Gestão de Modelos e Animações 3D
+
+O aplicativo utiliza o formato **.GLB** (glTF Binary) por ser leve e otimizado para mobile. Os arquivos estão localizados em `src/main/assets/animations/`.
+
+### Lista de Animações Atuais (Por Personagem):
+
+O projeto agora suporta múltiplos personagens, cada um com seu próprio conjunto de animações organizado em subpastas (`assets/animations/`).
+
+**1. Avatar 1 (Principal):**
+* **Idle (Danças):** `dancinghiphop.glb`, `dancinghiphop2.glb`, `dancingjazz.glb`, `dancingsalsa.glb`, `dancingsamba.glb`
+* **Interação:** `talking.glb`
+* **Erro:** `morte.glb` (Executado se a API falhar)
+
+**2. Avatar 2 (Secundário):**
+* **Idle (Danças):** `macarena.glb`, `salsa.glb`
+* **Interação:** `TALKING.glb`
+
+**3. Avatar 3 (Terciário):**
+* **Idle (Danças):** `rapping.glb`, `salsa.glb`
+* **Interação:** `talking.glb`
+
+> **Nota:** O sistema de "Sorteio Inteligente" garante que, dentro do conjunto de cada avatar, as danças variem aleatoriamente sem repetições consecutivas.
+
 ## ➕ Guia de Personalização
 
-Você pode adicionar seus próprios avatares ou novas danças (do Mixamo, Blender, etc.) facilmente.
+Você pode adicionar novas danças aos personagens existentes ou criar novos avatares facilmente.
 
-### Passo 1: Preparar o Arquivo
+### Passo 1: Preparar o Arquivo (Mixamo/Blender)
 1.  Baixe a animação em formato **.fbx** ou **.glb**.
-2.  **IMPORTANTE:** Se for uma animação de loop (como dança), marque a opção **"In Place"** (No Lugar) para evitar que o avatar saia andando pela sala e perca a âncora AR.
+2.  **IMPORTANTE:** Se for uma animação de loop (como dança), marque a opção **"In Place"** (No Lugar) para evitar que o avatar saia andando pela sala e atravesse a "gaiola" do modo estúdio.
 3.  Converta para `.glb` se necessário.
-4.  Renomeie o arquivo usando **apenas letras minúsculas** (ex: `minhanovadanca.glb`). O Android não reconhece maiúsculas em assets facilmente.
+4.  Renomeie o arquivo usando **apenas letras minúsculas** (ex: `novadanca.glb`). O Android tem problemas com maiúsculas em assets.
 
 ### Passo 2: Adicionar ao Projeto
-Coloque o arquivo na pasta:
+Coloque o arquivo na subpasta do personagem correto em:
 `app/src/main/assets/animations/`
 
+* Se for para o **Avatar 1**, coloque em: `animations/avatar1/`
+* Se for para o **Avatar 2**, coloque em: `animations/avatar2/`
+
 ### Passo 3: Registrar no Código
-Abra `AvatarArActivity.java` e adicione o nome do arquivo na lista `modelosDancaIdle`:
+Abra `AvatarArActivity.java` e adicione o caminho do arquivo na lista correspondente ao personagem (localizadas no topo da classe):
 
 ```java
-private String[] modelosDancaIdle = {
-    "animations/dancing.glb",
-    "animations/minhanovadanca.glb", // <--- SEU NOVO ARQUIVO AQUI
-    // ... outros arquivos
+// Exemplo: Adicionando uma dança ao Avatar 2
+private String[] dancasAvatar2 = {
+    "animations/avatar2/macarena.glb",
+    "animations/avatar2/salsa.glb",
+    "animations/avatar2/novadanca.glb" // <--- ADICIONE AQUI (Use o caminho completo)
 };
 ```
+atualize no On Create também, para ser gerado no cache.
 
 ### 💿 Instalação e Configuração
 
@@ -117,20 +149,9 @@ private String[] modelosDancaIdle = {
 
 ---
 
-## 🔧 Solução de Problemas
-
-| Problema | Causa Provável | Solução |
-| :--- | :--- | :--- |
-| **Crash ao abrir a câmera** | Permissões negadas. | Vá nas configurações do Android > Apps > AvatarAR e permita o uso da Câmera. |
-| **Erro 404 na IA** | API Key ou Modelo incorreto. | Verifique se não há espaços em branco na chave colada. Confirme se o modelo no `GeminiManager` é `gemini-2.5-flash`. |
-| **Avatar deslizando no chão** | Animação com Root Motion. | Use animações "In Place" ou ancore o avatar tocando na tela assim que ele aparecer. |
-| **Flickering (Piscada)** | Troca de modelo pesado. | Normal na troca de arquivos GLB. Reduzir o tamanho dos arquivos (texture compression) ajuda. |
-
----
-
 ## 🔒 Política de Privacidade
 
-**Última atualização:** 28 de Dezembro de 2024
+**Última atualização:** 09 de  Janeiro de 2025
 
 A sua privacidade é importante para nós. Esta política descreve como o aplicativo **Avatar AR** coleta, usa e protege as suas informações.
 
